@@ -1,0 +1,1478 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf340
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 /**\
+ Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.\
+\
+ Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at\
+\
+ http://aws.amazon.com/apache2.0/\
+\
+ or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.\
+ */\
+\
+/**\
+ * This sample shows how to create a simple Trivia skill with a multiple choice format. The skill\
+ * supports 1 player at a time, and does not support games across sessions.\
+ */\
+\
+'use strict';\
+\
+/**\
+ * When editing your questions pay attention to your punctuation. Make sure you use question marks or periods.\
+ */\
+var questions = [\
+    \
+    // NHL Questions\
+\{\
+	"What was the name of the hockey championship system before the year nineteen-fifteen?": [\
+"The Challenge Cup.",\
+"The American Championship.",\
+"The North American Championship.",\
+"The Amateur Championship."\
+]\
+\},\
+\{\
+	"Which team has appeared in the Stanley Cup Finals the most?": [\
+	"The Montreal Canadiens.",\
+	"The Detroit Red Wings.",\
+	"The Toronto Maple Leafs.",\
+	"The Boston Bruins."\
+]\
+\},\
+\{\
+	"Which team has won the Stanley cup the most?": [\
+	"The Montreal Canadiens.",\
+	"The Detroit Red Wings.",\
+	"The Toronto Maple Leafs.",\
+	"The Boston Bruins."\
+]\
+\},\
+\{\
+	"Which team has the highest win percentage in the Stanley Cup Finals?":  [\
+	"The Colorado Avalanche.",\
+	"The New York Islanders.",\
+	"The Pittsburgh Penguis.",\
+	"The Montreal Canadiens."\
+]\
+\},\
+\{\
+	"Which franchise holds the record for most points in a season?":  [\
+	"The Montreal Canadiens.",\
+	"The Detroit Red Wings.",\
+	"The Colorado Avalanche.",\
+	"The Chicago Blackhawks."\
+	]\
+\},\
+\{\
+	"Which franchise holds the record for most wins in a season?": [\
+	"The Detroit Red Wings.",\
+	"The Montreal Canadiens.",\
+	"The Chiago Blackhawks.",\
+	"The Edmonton Oilers."\
+	]\
+\},\
+\{\
+	"Which fanchise holds the record for the most ties in a season?": [\
+	"The Philadelphia Flyers.",\
+	"The New Jersey Devils.",\
+	"The Monreal Canadiens.",\
+	"The Chicago Blackhawks."\
+	]\
+\},\
+\{\
+	"Which franchise holds the record for the most losses in a season?": [\
+	"The San Jose Sharks.",\
+	"The New York Rangers.",\
+	"The Boston Bruins.",\
+	"The Ottawa Senators."\
+	]\
+\},\
+\{\
+	"Which franchise holds the record for fewest goals in a season?": [\
+	"The Chicago Blackhawks.",\
+	"The Montreal Canadiens.",\
+	"The Edmonton Oilers.",\
+	"The New York Rangers."\
+	]\
+\},\
+\{\
+	"Which franchise holds the record for the longest winning streak?": [\
+	"The Pitssburgh Penguins.",\
+	"The Detroit Red Wings.",\
+	"The Minnesota Wild.",\
+	"The Montreal Canadiens."\
+	]\
+\},\
+\{\
+	"Which franchise holds the record for the longest undefeated streak?": [\
+	"The Philadelphia Flyers.",\
+	"The Pittsburgh Penguins.",\
+	"The Detroit Red Wings.",\
+	"The Montreal Canadiens."\
+	]\
+\},\
+\{\
+	"What was the score of the game with the largest goal difference in professional hockey history?": [\
+	"Fifteen to zero.",\
+	"Ten to one.",\
+	"Eight to zero.",\
+	"Thirteen to two."\
+	]\
+\},\
+\{\
+	"Which franchise holds the most division titles in national hockey league history?": [\
+	"The Boston Bruins.",\
+	"The Montreal Canadiens.",\
+	"The New York Rangers.",\
+	"The Detroit Red Wings."\
+	]\
+\},\
+\{\
+	"Which players holds the record for most career goals?": [\
+	"Wayne Gretzky.",\
+	"Mario Lemieux.",\
+	"Joe Malone.",\
+	"Maurice Richard."\
+	]\
+\},\
+\{\
+	"Which player holds the record for most goals in a season?": [\
+	"Wayne Gretzky.",\
+	"Mario Lemieux.",\
+	"Joe Malone.",\
+	"Maurice Richard."\
+	]\
+\},\
+\{\
+	"Which player holds the record for most goals in a game?": [\
+	"Joe Malone.",\
+	"Wayne Gretzky.",\
+	"Mario Lemieux.",\
+	"Maurice Richard."\
+	]\
+\},\
+\{\
+	"Which goaltender holds the record for most wins?": [\
+	"Martin Brodeur.",\
+	"Patrick Roy",\
+	"Chris Osgood.",\
+	"Terry Sawchuck."\
+	]\
+\},\
+\{\
+	"Which goaltender holds the record for most playoff wins?": [\
+	"Patrick Roy.",\
+	"Martin Brodeur.",\
+	"Chris Osgood.",\
+	"Terry Sawchuck."\
+	]\
+\},\
+\{\
+	"Who holds the record for the most seasons with thirty or more goals?": [\
+	"Mike Gartner.",\
+	"Wayne Gretzky.",\
+	"Gordie Howe.",\
+	"Jaromir Jagr."\
+	]\
+\},\
+\{\
+	"Which player holds the highest goals per game average among players with at least two hundred goals?": [\
+	"Mike Bossy.",\
+	"Wayne Gretzky.",\
+	"Mario Lemieux.",\
+	"Joe Malone."\
+	]\
+\},\
+\{\
+	"Which franchise won the first National Hockey League Stanley Cup in nineteen-twenty-seven?": [\
+	"The Ottawa Senators.",\
+	"The Boston Bruins.",\
+	"The New York Rangers.",\
+	"The Montreal Maroons."\
+	]\
+\},\
+\{\
+	"What was the only year since the founding of the National Hockey League where the Stanley Cup Finals were not played?": [\
+	"Two-thousand-five.",\
+	"Nineteen-forty-two.",\
+	"Two-thousand-one.",\
+	"Nineteen-sixty-one."\
+	]\
+\},\
+\{\
+	"Which coach has won the Stanley Cup Finals the most in National Hockey League History?": [\
+	"Scotty Bowman.",\
+	"Toe Blake.",\
+	"Hap Day.",\
+	"Al Arbour."\
+	]\
+\},\
+\{\
+	"Which franchise won the Stanley Cup Finals most often between two thousand-five and two thousand-fifteen?": [\
+	"The Chicago Blackhawks.",\
+	"The Los Angeles Kings.",\
+	"The Detroit Red Wings.",\
+	"The Boston Bruins."\
+	]\
+\},\
+\{\
+	"Which coach has won the most consecutive Stanley Cup Finals?": [\
+	"Toe Blake.",\
+	"Scotty Bowman.",\
+	"Hap Day.",\
+	"Al arbour."\
+	]\
+\},\
+\
+// 25 questions completed\
+\
+\
+    \
+// Nfl Questions\
+    \{\
+	    "Who Won the Super Bowl 50?": [\
+            "The Denver Broncos",\
+            "The New York Giants",\
+            "Kansas City Chiefs",\
+            "New England Patriots"\
+        ]\
+    \},\
+    \
+    \{\
+        "Who is the All-time leading scorer in the NBA?": [\
+            "Kareem Abdul-Jabbar",\
+            "Kobe Bryant",\
+            "Michael Jordan",\
+            "Dirk Knowitzki"\
+        ]\
+    \},\
+    \
+    \{\
+        "Which of these players hit the most home runs in 2013?": [\
+            "Chris Davis.",\
+            "Derek Jeter.",\
+            "Adam Jones.",\
+            "David Ortiz."\
+        ]\
+    \},\
+    \{\
+         "How many runs did the Texas Rangers score to hold the single most runs scored in a game record?": [\
+            "30.",\
+            "17.",\
+            "24.",\
+            "35."\
+        ]\
+    \},\
+    \{\
+         "Who holds the record for most All-Star Games as a catcher?": [\
+            "Yogi Berra.",\
+            "Buster Posey.",\
+            "Derrik Norris.",\
+            "Russell Martin."\
+        ]\
+    \},\
+    \{\
+        "Who holds the record for most hits in a season by a pitcher since 2000?": [\
+            "Carlos Zambrano.",\
+            "David Price.",\
+            "Matt Harvey.",\
+            "Tyson Ross."\
+        ]\
+    \},\
+    \{\
+        "Which one of the following teams hit the most home runs in 2015?": [\
+            "Toronto Blue Jays.",\
+            "Oakland Athletics.",\
+            "Boston Red Sox.",\
+            "New York Mets."\
+        ]\
+    \},\
+    \{\
+        "Who had the highest batting average during the 2012 season?": [\
+            "Los Angeles Angels",\
+            "Miami Marlins",\
+            "Houston Astros",\
+            "Arizona Diamondbacks"\
+        ]\
+    \},\
+    \{\
+        "Early in the 2010 season, Albert Pujols broke the record for most home runs in the first ten seasons of a big league career.  Who held the previous record at 370 homers over the first ten years?": [\
+            "Eddie Mathews",\
+            "Jeff Bagwell",\
+            "Sammy Sosa",\
+            "Hank Aaron"\
+        ]\
+    \},\
+    \{\
+         "Which second basemen had the most stolen bases in the 2014 season?": [\
+            "Dee Gordon",\
+            "David Murphy",\
+            "Brandon Phillips",\
+            "Robinson Cano"\
+        ]\
+    \},\
+    \{\
+         "Which third basemen had the most hits during the 2015 season?": [\
+            "Josh Donaldson",\
+            "Evan Longoria",\
+            "Pablo Sandoval",\
+            "David Wright"\
+        ]\
+    \},\
+    \
+    \
+    // More MLB Questions \
+    \
+    \{\
+	"Which team won the two-thousand five World Series?": [\
+    "The Chicago White Sox.",\
+    "The New York Yankees.",\
+    "The Houston Astros.",\
+    "The Boston Red Sox."\
+]\
+\},\
+\{\
+	"Which Major League Baseball team has the longest active curse?": [\
+	"The Chicago Cubs.",\
+	"The Boston Red Sox.",\
+	"The Chicago White Sox.",\
+	"The Pittsburgh Pirates."\
+	]\
+\},\
+\{\
+	"Which Major League Baseball franchise is the oldest franchise in professional baseball?": [\
+	"The Cincinnati Reds.",\
+	"The Chicago Cubs.",\
+	"The Saint Louis Cardinals.",\
+	"The Atlanta Braves."\
+	]\
+\},\
+\{\
+	"Which team won the two-thousand six World Series?": [\
+	"The Saint Louis Cardinals.",\
+	"The Boston Red Sox.",\
+	"The Detroit Tigers.",\
+	"The Chicago White Sox."\
+	]\
+\},\
+\{\
+	"Which team won the first ever World Series?": [\
+	"The Boston Americans.",\
+	"The Pittsburgh Pirates.",\
+	"The Cincinnate Reds.",\
+	"The Philadelphia Athletics."\
+	]\
+\},\
+\{\
+	"How many times did the Yankees appear in the World Series before the year twenty-sixteen?": [\
+	"Forty.",\
+	"Thirty-seven.",\
+	"Forty-five.",\
+	"Forty-two."\
+	]\
+\},\
+\{\
+	"How many times did the Yankees win the World Series before the year twenty-sixteen?": [\
+	"Twenty-seven.",\
+	"Twenty-six.",\
+	"Thirty-one.",\
+	"Twenty-nine."\
+	]\
+\},\
+\{\
+	"What team had eight players banned from baseball for life for conspiring with gamblers to intentionally lose the nineteen-nineteen World Series?": [\
+	"The Chicago White Sox.",\
+	"The Boston Red Sox.",\
+	"The Chicago Cubs.",\
+	"The Cincinnati Reds."\
+	]\
+\},\
+\{\
+	"Who is the all-time batting average leader in Major League Baseball?": [\
+	"Ty Cobb.",\
+	"Babe Ruth.",\
+	"Lou Gherig.",\
+	"Rogers Hornsby."\
+	]\
+\},\
+\{\
+	"Who is the all-time leader for on-base percentage in Major League Baseball?": [\
+	"Ted Williams",\
+	"Babe Ruth.",\
+	"Ty Cobb.",\
+	"Barry Bonds."\
+	]\
+\},\
+\{\
+	"Who leads Major League Baseball in career at-bats and hits?": [\
+	"Pete Rose.",\
+	"Ty Cobb.",\
+	"Hank Aaron.",\
+	"Derek Jeter."\
+	]\
+\},\
+\{\
+	"Who holds the Major League Baseball record for most career home runs?": [\
+	"Barry Bonds.",\
+	"Hank Aaron.",\
+	"Babe Ruth.",\
+	"Alex Rodriguez."\
+	]\
+\},\
+\{\
+	"Who holds the Major League Baseball record for most stolen bases?": [\
+	"Rickey Henderson.",\
+	"Lou Brock.",\
+	"Billy Hamilton.",\
+	"Ty Cobb."\
+	]\
+\},\
+\{\
+	"Which team swept the World Series in twenty-thirteen with four straight wins over the Detroit Tigers?": [\
+	"The San Francisco Giant.",\
+	"The Saint Louis Cardinals.",\
+	"The Philadelphia Phillies.",\
+	"The Colorado Rockies"\
+	]\
+\},\
+\
+\{\
+	"Which National League team has never appeared in a World Series in franchise history as of the year twenty-fifteen?": [\
+	"The Nationals.",\
+	"The Mariners.",\
+	"The Brewers.",\
+	"The Rays."\
+	]\
+\},\
+\{\
+	"Which American League team has never appeared in a World Series in franchise history as of the year twenty-fifteen?": [\
+	"The Mariners.",\
+	"The Nationals.",\
+	"The Brewers.",\
+	"The Rays."\
+	]\
+\},\
+\{\
+	"Which American League Team has been based out of three different states?": [\
+	"The Athletics.",\
+	"The Braves.",\
+	"The Dodgers.",\
+	"The Angels."\
+	]\
+\},\
+\{\
+	"Which National League Team has been based out of three different states?": [\
+	"The Braves.",\
+	"The Athletics.",\
+	"The Dodgers.",\
+	"The Angels."\
+	]\
+\},\
+\{\
+	"Which nickname has been used by two separate Major League Baseball franchises?":[\
+	"The Senators.",\
+	"The Giants.",\
+	"The Dodgers.",\
+	"The Angels."]\
+\},\
+\{\
+	"Which Major League Baseball franchise has not won a World Series since nineteen-oh-eight after being cursed by their own fan for banning the fan's goat from their ball park?": [\
+	"The Chicago Cubs.",\
+	"The Chicago White Sox.",\
+	"The Clevland Indians.",\
+	"The Boston Red Sox."\
+	]\
+\},\
+\{\
+	"Who has pitched the most most innings in Major League Baseball of any pitcher?": [\
+	"Cy Young.",\
+	"Pud Galvin.",\
+	"Walter Johnson.",\
+	"Phil Niekro."\
+	]\
+\},\
+\{\
+	"Who has the most career saves in Major League Baseball History?": [\
+	"Mariano Rivera.",\
+	"Trevor Hoffman.",\
+	"Lee Smith.",\
+	"John Franco."\
+	]\
+\},\
+\{\
+	"Which pitcher has the most career wins in Major League Baseball?": [\
+	"Cy Young.",\
+	"Walter Johnson.",\
+	"Grover Alexander.",\
+	"Christy Mathewson."\
+	]\
+\},\
+\{\
+	"Which pitcher has the most career strikeouts in Major League Baseball History?": [\
+	"Nolan Ryan.",\
+	"Randy Johnson.",\
+	"Roger Clemens.",\
+	"Steve Carlton."\
+	]\
+\},\
+\{\
+	"Which Major League Baseball pitcher held his opponents to the lowest career batting average in history?": [\
+	"Nolan Ryan.",\
+	"Sandy Koufax.",\
+	"Pedro Martinez.",\
+	"Andy Messersmith."\
+	]\
+\},\
+\{\
+	"Which player broke the single-season home run record with sixty-one home runs in nineteen-sixty-one?": [\
+	"Roger Maris.",\
+	"Mickey Mantle.",\
+	"Hank Aaron.",\
+	"Babe Ruth."\
+	]\
+\},\
+\{\
+	"Which teammate did Roger Maris beat in the nineteen-sixty-one home run race to break Babe Ruth's home run record?": [\
+	"Mickey Mantle.",\
+	"Joe Dimaggio.",\
+	"Babe Ruth.",\
+	"Hank Aaron."\
+	]\
+\},\
+\{\
+	"Which player is not in the 600 home run club?": [\
+	"Mark McGuire.",\
+	"Sammy Sosa.",\
+	"Jim Thome.",\
+	"Ken Griffey Junior."\
+	]\
+\},\
+\{\
+	"In which year did Randy Johnson throw his perfect game?": [\
+	"Two-thousand-four.",\
+	"Two-thousand-three.",\
+	"Two-thousand-two.",\
+	"Two-thousand-five."\
+	]\
+\},\
+\{\
+	"Which player did Mark McGuire beat in the nineteen-ninety-eight home run race?": [\
+	"Sammy Sosa.",\
+	"Ken Griffey Junior.",\
+	"Greg Vaughn.",\
+	"Albert Belle."\
+	]\
+\},\
+\{\
+	"Which player holds the single-season home run record?": [\
+	"Barry Bonds.",\
+	"Mark Mcguire.",\
+	"Babe Ruth.",\
+	"Ken Griffey Junior."\
+	]\
+\},\
+\{\
+	"Who threw the perfect game during the two-thousand-twelve season?": [\
+	"Felix Hernandez.",\
+	"Jered Weaver.",\
+	"Matt Cain.",\
+	"Johan Santana."\
+	]\
+\},\
+\{\
+	"Which player had the highest batting average in Major League Baseball during the twenty-fourteen season?": [\
+	"Jose Altuve.",\
+	"Victor Martinez.",\
+	"Miguel Cabrera.",\
+	"Michael Brantley.",\
+	]\
+\},\
+\{\
+	"Which pitcher finished the twenty-fifteen season with the most wins in Major League Baseball?": [\
+	"Jake Arrieta.",\
+	"Dallas Keuchel.",\
+	"Gerrit Cole.",\
+	"Zack Greinke."\
+	]\
+\},\
+\{\
+	"Who recorded the most strikeouts in Major League Baseball during the twenty-thirteen season?": [\
+	"Yu Darvish.",\
+	"Max Scherer.",\
+	"Clayton Kershaw.",\
+	"Chris Sale."\
+	]\
+\},\
+\{\
+	"Who had the most Runs-Batted-In in Major League Baseball during the twenty-twelve season?": [\
+	"Miguel Cabrera.",\
+	"Josh Hamilton.",\
+	"Chase Headley.",\
+	"Ryan Braun."\
+	]\
+\},\
+\{\
+	"Which team recorded the most stolen bases in Major League Baseball during the twenty-fifteen season?": [\
+	"The Cincinnati Reds.",\
+	"The Arizona Diamondbacks.",\
+	"The Houston Astros.",\
+	"The Miami Marlins."\
+	]\
+\},\
+\{\
+	"Which team hit the most home runs in Major League Baseball during the twenty-thirteen season?": [\
+	"The Baltimore Orioles.",\
+	"The Seattle Mariners.",\
+	"The Oakland Athletics.",\
+	"The Toronto Blue Jays."\
+	]\
+\},\
+\{\
+	"Which team gave up the least runs in Major League Baseball during the twenty-fourteen season?": [\
+	"The Seattle Mariners.",\
+	"The Washington Nationals.",\
+	"The Oakland Athletics.",\
+	"The San Diego Padres."\
+	]\
+\},\
+\{\
+	"Which team had the best opposing team batting average in Major League Baseball during the twenty-twelve season?": [\
+	"The Tampa Bay Rays.",\
+	"The Washington Nationals.",\
+	"The Los Angeles Dodgers.",\
+	"The Atlanta Braves."\
+	]\
+\},\
+\
+//40 questions completed\
+ \
+ \{\
+	"How many rules did James Naismith originally write to define basketball?": [\
+"Thirteen.",\
+"Thirty three.",\
+"Twenty.",\
+"Fifty Three."\
+]\
+\},\
+\{\
+	"Who broke Magic Johnson\'92s all-time NBA assists record in nineteen ninety-five?": [\
+"John Stockton.",\
+"Kevin Johnson.",\
+"Shaquille O\'92Neal.",\
+"Scottie Pippen."\
+]\
+\},\
+\{\
+	"What was the first NBA team to win 70 games or more in the regular season?": [\
+"The Chicago Bulls.",\
+"The Miami Heat.",\
+"The Golden State Warriors.",\
+"The Boston Celtics."\
+]\
+\},\
+\{\
+	"What former L.A. Lakers guard became the team's general manger?": [\
+"Jerry West.",\
+"Brad Holland.",\
+"Von Wafer.",\
+"John Roche."\
+]\
+\},\
+\{\
+	"Who was the first hoopster to win eight NBA scoring titles?": [\
+"Michael Jordan.",\
+"Phil Jackson.",\
+"Kobe Bryant.",\
+"Magic Johnson."\
+]\
+\},\
+\{\
+	"Who is the NBA's winningest coach ever?": [\
+"Phil Jackson.",\
+"Lenny Wilkins.",\
+"Pat Riley.",\
+"Bill Russell."\
+]\
+\},\
+\{\
+	"What NBA hoopster is known as The Worm?": [\
+"Dennis Rodman.",\
+"Hasheem Thabeet.",\
+"Yao Ming.",\
+"Mark Eaton."\
+]\
+\},\
+\{\
+	"Who are the tallest people to play in the NBA?": [\
+"Manute Bol and Gheoghe Muresan.",\
+"Yao Ming and Mark Eaton.",\
+"Gheoghe Muresan and Ralph Sampson.",\
+"Pavel Podkolzin and Chuck Nevitt."\
+]\
+\},\
+\{\
+	"Who is the shortest person to play in the NBA?": [\
+"Tyrone Muggsy Bogues.",\
+"Earl Boykins.",\
+"Anthony Webb.",\
+"Nate Robinson."\
+]\
+\},\
+\{\
+	"Who was the first team in the NBA?": [\
+"The Boston Celtics.",\
+"The Detroit Falcons.",\
+"The St. Louis Bombers.",\
+"The New York Knickerbockers later changed to The New York Knicks."\
+]\
+\},\
+\{\
+	"Which teams played in the first NBA game?": [\
+"Toronto Huskies and New York Knickerbockers.",\
+"Minneapolis Lakers and Rochester Royals.",\
+"Boston Celtics and Baltimore Bullets.",\
+"Toronto Huskies and Boston Celtics."\
+]\
+\},\
+\{\
+	"What was the NBA\'92s original league name?": [\
+"Basketball Association of America.",\
+"American Basketball League.",\
+"USA Basketball Association.",\
+"National Basketball League."\
+]\
+\},\
+\{\
+	"Where was the National Basketball League founded?": [\
+"New York.",\
+"Boston.",\
+"Washington DC.",\
+"New Jersey."\
+]\
+\},\
+\{\
+	"What NBA team has won the most titles?": [\
+"Boston Celtics.",\
+"Los Angeles Lakers.",\
+"Dallas Mavericks.",\
+"Chicago Bulls."\
+]\
+\},\
+\{\
+	"Who has the most NBA titles?": [\
+"Bill Russell.",\
+"Sam Jones.",\
+"Michael Jordan.",\
+"Kobe Bryant."\
+]\
+\},\
+\{\
+	"Who leads the NBA in all time assists?": [\
+"John Stockton.",\
+"Steve Nash.",\
+"Derrick Fisher.",\
+"Allen Iverson."\
+]\
+\},\
+\{\
+	"Who had the most assists in an NBA game?": [\
+"Scott Skiles.",\
+"John Stockton.",\
+"Magic Johnson.",\
+"Steve Nash."\
+]\
+\},\
+\{\
+	"Who leads the NBA in all time rebounds?": [\
+"Wilt Chamberlain.",\
+"Kevin Garnett.",\
+"Shaquille O\'92Neal.",\
+"Dennis Rodman."\
+]\
+\},\
+\{\
+	"Who leads the NBA in all time blocks?": [\
+"Hakeem Olajuwon.",\
+"Kareem Abdul-Jabbar.",\
+"Ben Wallace.",\
+"Shaquille O\'92Neal."\
+]\
+\},\
+\{\
+	"Who leads the NBA in all time steals?": [\
+"John Stockton.",\
+"Scottie Pippen.",\
+"Allen Iverson.",\
+"Kobe Bryant."\
+]\
+\},\
+\{\
+	"Who leads the NBA in all time points?": [\
+"Kareem Abdul-Jabbar.",\
+"Kobe Bryant.",\
+"Dirk Nowitzki.",\
+"LeBron James."\
+]\
+\},\
+\{\
+	"Who leads the NBA in all-time triple double?": [\
+"Oscar Robertson.",\
+"LeBron James.",\
+"Michael Jordan.",\
+"Grant Hill."\
+]\
+\},\
+\{\
+	"Which player has the most MVP\'92s in the NBA?": [\
+"Kareem Abdul-Jabbar.",\
+"Bill Russell.",\
+"Michael Jordan.",\
+"Kobe Bryant."\
+]\
+\},\
+\{\
+	"How many games are there in an NBA season?": [\
+"Eighty two.",\
+"Ninety.",\
+"Seventy five.",\
+"Sixty."\
+]\
+\},\
+\{\
+	"Who is the highest paid NBA player of all time?": [\
+"Kevin Garnett.",\
+"Carmelo Anthony.",\
+"Dwight Howard.",\
+"Chris Bosh."\
+]\
+\},\
+\
+//**********************Johns NFL Questions********************\
+\{\
+        "Who is the All-Time Leading rusher?": [\
+            "Emmitt Smith.",\
+            "Barry Sanders.",\
+            "Walter Payton",\
+            "OJ Simpson."\
+        ]\
+    \},\
+    \{\
+        "Who has the most career rushing attempts in a season?": [\
+            "Larry Johnson.",\
+            "Emmitt Smith.",\
+            "Eric Dickerson.",\
+            "Jamal Anderson."\
+        ]\
+    \},\
+    \{\
+        "Who has longest run from scrimmage?": [\
+            "Tony Dorsett.",\
+            "Ahman Green.",\
+            "Marshall Faulk.",\
+            "Jim Brown."\
+        ]\
+    \},\
+    \{\
+        "What NFL quarterback has the most career interceptions?": [\
+            "Brett Favre.",\
+            "Brad Johnson.",\
+            "Randall Cunningham.",\
+            "Peyton Manning."\
+        ]\
+    \},\
+    \{\
+        "What NFL quarterback has thrown for the most career touchdowns?": [\
+            "Peyton Manning.",\
+            "Dante Culpepper.",\
+            "Michael Vick.",\
+            "Bart Starr."\
+        ]\
+    \},\
+    \{\
+        "What kicker has the most points?": [\
+            "Morten Andersen.",\
+            "Adam Vinatieri.",\
+            "Jason Hanson.",\
+            "Tyler Strickland."\
+        ]\
+    \},\
+    \{\
+        "What coach has the most NFL championships with no losses?": [\
+            "Chuck Noll.",\
+            "Bill Belichick.",\
+            "Vince Lombardi.",\
+            "Bill Walsh."\
+        ]\
+    \},\
+    \{\
+        "Who is the All-Time leader is quarterback sacks?": [\
+            "Bruce Smith.",\
+            "Brian Cox.",\
+            "Mike Singletary.",\
+            "Howie Long."\
+        ]\
+    \},\
+    \{\
+        "Who is the All-Time leader in kick-off return touchdowns?": [\
+            ".",\
+            "Josh Cribbs.",\
+            "Dante Hall.",\
+            "Gale Sayers.",\
+	        "Devin Hester.",\
+        ]\
+    \},\
+    \{\
+        "What defensive player has the most career interceptions?": [\
+            "Paul Krause.",\
+            "Rod Woodson.",\
+            "Charles Woodson.",\
+            "Aeneas Williams."\
+        ]\
+    \},\
+\
+    // Soccer Questions\
+\
+\{\
+	"Who won the first ever World Cup?": [\
+"Uruguay",\
+"Brazil",\
+"Italy",\
+"Sweden"\
+]\
+\},\
+\{\
+	"How many times has Germany won the World Cup, (prior to 2005)?": [\
+	"3.",\
+	"2",\
+	"1",\
+	"4"\
+]\
+\},\
+\
+\{\
+	"How many goals did England score in the 1998 World Cup?": [\
+	"7",\
+	"5",\
+	"6",\
+	"4"\
+]\
+\},\
+\
+\{\
+	"In Soccer Which famous Brazilian in 2007 scored his \'93thousandth\'94 career goal?":  [\
+	"Romario",\
+	"Edmondo.",\
+	"Ronaldo.",\
+	"Bebeto."\
+]\
+\},\
+\{\
+	"Who is the all time Premiership soccer top scorer?":  [\
+	"Alan Shearer",\
+	"Thierry Henry",\
+	"Andy Cole",\
+	"Faustino Asprilla"\
+	]\
+\},\
+\{\
+	"La Galaxy Player David Beckham has played for Real Madrid, Manchester United and which other club?": [\
+	"Preston North End",\
+	"Port Bale",\
+	"Plymouth Argyle",\
+	"Portsmouth."\
+	]\
+\},\
+\{\
+	"Where was the 1986 World Cup held? ": [\
+	"Mexico",\
+	"Spain",\
+	"Canada",\
+	"Brazil"\
+	]\
+\},\
+\{\
+	"Who was the first \'a3100,000 (or above) Soccer transfer? ": [\
+	"Dennis Law",\
+	"Bobby Charlton",\
+	"Jimmy Greaves",\
+	"Ray Wilson"\
+	]\
+\},\
+\{\
+	"Where was the 1962 World Cup held?": [\
+	"Chile",\
+	"Germany",\
+	"Australia",\
+	"France"\
+	]\
+\},\
+\{\
+	"Which of these star soccer players has never played for Real Madrid?": [\
+	" Lionel Messi",\
+	"Zinedine Zidane",\
+	"Ronaldo",\
+	"David Beckham"\
+	]\
+\},\
+\{\
+	"Anfield is the home of which English Premier League club?": [\
+	"Liverpool",\
+	"West Ham United",\
+	"Manchester City",\
+	"Manchester United"\
+	]\
+\},\
+\{\
+	"In the MLS in what city does the team Chivas USA play?": [\
+	"Carson, California ",\
+	"Phoenix, Arizona ",\
+	"Miami, Florida",\
+	"Baltimore, Maryland"\
+	]\
+\},\
+\{\
+	"Who was the only player to score a UEFA Champions League Hat-Trick for Chelsea FC?": [\
+	"Didier Drogba",\
+	"Frank Lampard",\
+	"Steven Gerard",\
+	"Ashley Cole"\
+	]\
+\},\
+\{\
+	"Which team did Christiano Ronaldo Begin his professional Career?": [\
+	"Sporting CP",\
+	"Manchester United",\
+	"Real Madrid",\
+	"Athletico Madrid "\
+	]\
+\},\
+\{\
+	"Christiano Ronaldo plays for which National Team?": [\
+	"Portugal",\
+	"England",\
+	"Spain",\
+	"France"\
+	]\
+\},\
+\{\
+	"In 2009, Christiano Ronaldo was named the World\'92s most expensive player when he was transferred to Real Madrid, What was the Transfer amount in US dollars?": [\
+	"132 million ",\
+	"99 million",\
+	"75 million",\
+	"150 million"\
+	]\
+\},\
+\{\
+	"Lionel Messi has won how many Fifa Ballons d\'92Or awards?": [\
+	"5",\
+	"3",\
+	"7",\
+	"2"\
+	]\
+\},\
+\{\
+	"Who is the All time top goal scorer in La Liga soccer League?": [\
+	"Lionel Messi ",\
+	"Christiano Ronaldo ",\
+	"David Villa",\
+	"Ronaldhino Goucho "\
+	]\
+\},\
+\{\
+	"The Golden Ball has only been won twice by one player, who?": [\
+	"Lionel Messi",\
+	"Wayne Rooney",\
+	"Sergio Ramos",\
+	"Luis Suarez."\
+	]\
+\},\
+\
+\{\
+	"Who was the Fifa World Player of the year in 2004 and 2005?": [\
+	"Ronaldinho Gaucho",\
+	"Arjen Robben",\
+	"Mario Balotelli",\
+	"Zinedine Zidane"\
+	]\
+\},\
+\
+/*\
+\
+\{\
+	"Which franchise won the first National Hockey League Stanley Cup in nineteen-twenty-seven?": [\
+	"The Ottawa Senators.",\
+	"The Boston Bruins.",\
+	"The New York Rangers.",\
+	"The Montreal Maroons."\
+	]\
+\},\
+\{\
+	"What was the only year since the founding of the National Hockey League where the Stanley Cup Finals were not played?": [\
+	"Two-thousand-five.",\
+	"Nineteen-forty-two.",\
+	"Two-thousand-one.",\
+	"Nineteen-sixty-one."\
+	]\
+\},\
+\{\
+	"Which coach has won the Stanley Cup Finals the most in National Hockey League History?": [\
+	"Scotty Bowman.",\
+	"Toe Blake.",\
+	"Hap Day.",\
+	"Al Arbour."\
+	]\
+\},\
+\{\
+	"Which franchise won the Stanley Cup Finals most often between two thousand-five and two thousand-fifteen?": [\
+	"The Chicago Blackhawks.",\
+	"The Los Angeles Kings.",\
+	"The Detroit Red Wings.",\
+	"The Boston Bruins."\
+	]\
+\},\
+\{\
+	"Which coach has won the most consecutive Stanley Cup Finals?": [\
+	"Toe Blake.",\
+	"Scotty Bowman.",\
+	"Hap Day.",\
+	"Al arbour."\
+	]\
+\}\
+\
+// 25 questions completed\
+*/\
+\
+    \
+    \
+    \
+];\
+\
+// Route the incoming request based on type (LaunchRequest, IntentRequest,\
+// etc.) The JSON body of the request is provided in the event parameter.\
+exports.handler = function (event, context) \{\
+    try \{\
+        console.log("event.session.application.applicationId=" + event.session.application.applicationId);\
+\
+        /**\
+         * Uncomment this if statement and populate with your skill's application ID to\
+         * prevent someone else from configuring a skill that sends requests to this function.\
+         */\
+		 \
+   if (event.session.application.applicationId !== "amzn1.echo-sdk-ams.app.316bfe38-6138-46b2-b78c-a439cde5647a") \{\
+        context.fail("Invalid Application ID");\
+      \}\
+\
+        if (event.session.new) \{\
+            onSessionStarted(\{requestId: event.request.requestId\}, event.session);\
+        \}\
+\
+        if (event.request.type === "LaunchRequest") \{\
+            onLaunch(event.request,\
+                event.session,\
+                function callback(sessionAttributes, speechletResponse) \{\
+                    context.succeed(buildResponse(sessionAttributes, speechletResponse));\
+                \});\
+        \} else if (event.request.type === "IntentRequest") \{\
+            onIntent(event.request,\
+                event.session,\
+                function callback(sessionAttributes, speechletResponse) \{\
+                    context.succeed(buildResponse(sessionAttributes, speechletResponse));\
+                \});\
+        \} else if (event.request.type === "SessionEndedRequest") \{\
+            onSessionEnded(event.request, event.session);\
+            context.succeed();\
+        \}\
+    \} catch (e) \{\
+        context.fail("Exception: " + e);\
+    \}\
+\};\
+\
+/**\
+ * Called when the session starts.\
+ */\
+function onSessionStarted(sessionStartedRequest, session) \{\
+    console.log("onSessionStarted requestId=" + sessionStartedRequest.requestId\
+        + ", sessionId=" + session.sessionId);\
+\
+    // add any session init logic here\
+\}\
+\
+/**\
+ * Called when the user invokes the skill without specifying what they want.\
+ */\
+function onLaunch(launchRequest, session, callback) \{\
+    console.log("onLaunch requestId=" + launchRequest.requestId\
+        + ", sessionId=" + session.sessionId);\
+\
+    getWelcomeResponse(callback);\
+\}\
+\
+/**\
+ * Called when the user specifies an intent for this skill.\
+ */\
+function onIntent(intentRequest, session, callback) \{\
+    console.log("onIntent requestId=" + intentRequest.requestId\
+        + ", sessionId=" + session.sessionId);\
+\
+    var intent = intentRequest.intent,\
+        intentName = intentRequest.intent.name;\
+\
+    // dispatch custom intents to handlers here\
+    if ("AnswerIntent" === intentName) \{\
+        handleAnswerRequest(intent, session, callback);\
+    \} else if ("AnswerOnlyIntent" === intentName) \{\
+        handleAnswerRequest(intent, session, callback);\
+    \} else if ("AMAZON.StartOverIntent" === intentName) \{\
+        getWelcomeResponse(callback);\
+    \} else if ("AMAZON.RepeatIntent" === intentName) \{\
+        handleRepeatRequest(intent, session, callback);\
+    \} else if ("AMAZON.HelpIntent" === intentName) \{\
+        handleGetHelpRequest(intent, session, callback);\
+    \} else if ("AMAZON.StopIntent" === intentName) \{\
+        handleFinishSessionRequest(intent, session, callback);\
+    \} else if ("AMAZON.CancelIntent" === intentName) \{\
+        handleFinishSessionRequest(intent, session, callback);\
+    \} else \{\
+        throw "Invalid intent";\
+    \}\
+\}\
+\
+/**\
+ * Called when the user ends the session.\
+ * Is not called when the skill returns shouldEndSession=true.\
+ */\
+function onSessionEnded(sessionEndedRequest, session) \{\
+    console.log("onSessionEnded requestId=" + sessionEndedRequest.requestId\
+        + ", sessionId=" + session.sessionId);\
+\
+    // Add any cleanup logic here\
+\}\
+\
+// ------- Skill specific business logic -------\
+\
+var ANSWER_COUNT = 4,\
+    GAME_LENGTH = 10;\
+\
+function getWelcomeResponse(callback) \{\
+    var sessionAttributes = \{\},\
+        cardTitle = "Golden Lion Trivia",\
+        speechOutput = "Golden Lion Sports Trivia. I will ask you " + GAME_LENGTH.toString() \
+            + " questions, try to get as many right as you can. Just say the number of the answer. Let's begin.",\
+        shouldEndSession = false,\
+\
+        gameQuestions = populateGameQuestions(),\
+        correctAnswerIndex = Math.floor(Math.random() * (ANSWER_COUNT)), // Generate a random index for the correct answer, from 0 to 3\
+        roundAnswers = populateRoundAnswers(gameQuestions, 0, correctAnswerIndex),\
+\
+        currentQuestionIndex = 0,\
+        spokenQuestion = Object.keys(questions[gameQuestions[currentQuestionIndex]])[0],\
+        repromptText = "Question 1. " + spokenQuestion + " ",\
+\
+        i, j;\
+\
+    for (i = 0; i < ANSWER_COUNT; i++) \{\
+        repromptText += (i+1).toString() + ". " + roundAnswers[i] + ". "\
+    \}\
+    speechOutput += repromptText;\
+    sessionAttributes = \{\
+        "speechOutput": repromptText,\
+        "repromptText": repromptText,\
+        "currentQuestionIndex": currentQuestionIndex,\
+        "correctAnswerIndex": correctAnswerIndex + 1,\
+        "questions": gameQuestions,\
+        "score": 0,\
+        "correctAnswerText":\
+            questions[gameQuestions[currentQuestionIndex]][Object.keys(questions[gameQuestions[currentQuestionIndex]])[0]][0]\
+    \};\
+    callback(sessionAttributes,\
+        buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));\
+\}\
+\
+function populateGameQuestions() \{\
+    var gameQuestions = [],\
+        randomNum;\
+\
+    // Pick 5 random questions from the list to ask the user, make sure there are no repeats\
+    while (gameQuestions.length != GAME_LENGTH) \{\
+        randomNum = Math.floor(Math.random() * (questions.length - 1));\
+        if (gameQuestions.indexOf(randomNum) == -1) \{\
+            gameQuestions.push(randomNum);\
+        \}\
+    \}\
+    return gameQuestions;\
+\}\
+\
+function populateRoundAnswers(gameQuestions, index, correctAnswer) \{\
+    // Get the answers for a given question, and place the correct answer at the spot marked by the\
+    // correctAnswer variable\
+    var answers = [],\
+        answersCopy = questions[gameQuestions[index]][Object.keys(questions[gameQuestions[index]])[0]],\
+        temp, i;\
+    for (i = 0; i < ANSWER_COUNT; i++) \{\
+        answers[i] = answersCopy[i];\
+    \}\
+    temp = answers[0];\
+    answers[0] = answers[correctAnswer];\
+    answers[correctAnswer] = temp;\
+    return answers;\
+\}\
+\
+function handleAnswerRequest(intent, session, callback) \{\
+    var cardTitle = "Golden Lion Trivia",\
+        speechOutput = "";\
+\
+    var answerSlot = intent.slots.Answer;\
+    // If the user provided answer isn't a number > 0 and < 5,\
+    // return an error message to the user\
+    if (!answerSlot || !answerSlot.value || isNaN(parseInt(answerSlot.value))\
+        || !(parseInt(answerSlot.value) < ANSWER_COUNT+1 && parseInt(answerSlot.value) > 0)) \{\
+        speechOutput = "Your answer must be a number between 1 and 4."\
+        callback(session.attributes,\
+            buildSpeechletResponse(cardTitle, speechOutput, speechOutput, false));\
+    \}\
+    else \{\
+        // If the user responded with an answer but there is no game in progress, ask the user\
+        // if they want to start a new game\
+        if (!session.attributes || !session.attributes.questions) \{\
+            speechOutput = "There is no game in progress. To start a new game, say, " +\
+                "start game.";\
+            callback(session.attributes,\
+                buildSpeechletResponse(cardTitle, speechOutput, speechOutput, false));\
+        \}\
+        else \{\
+            var gameQuestions = session.attributes.questions,\
+                correctAnswerIndex = parseInt(session.attributes.correctAnswerIndex),\
+                currentScore = parseInt(session.attributes.score),\
+                currentQuestionIndex = parseInt(session.attributes.currentQuestionIndex),\
+                correctAnswerText = session.attributes.correctAnswerText;\
+\
+            var speechOutputAnalysis = "";\
+            if (parseInt(answerSlot.value) == correctAnswerIndex) \{\
+                currentScore++;\
+                speechOutputAnalysis = "correct. ";\
+            \} else \{\
+                speechOutputAnalysis = "wrong. The correct answer is " + correctAnswerText + ". ";\
+            \}\
+            // if currentQuestionIndex is 4, we've reached 5 questions (zero-indexed) and can exit the game session\
+            if (currentQuestionIndex == GAME_LENGTH - 1) \{\
+                speechOutput = "That answer is " + speechOutputAnalysis + "You got " +\
+                    currentScore.toString() + " out of " + GAME_LENGTH.toString() + " questions correct. Thank you for playing!";\
+                callback(session.attributes,\
+                    buildSpeechletResponse(cardTitle, speechOutput, "", true));\
+            \}\
+            else \{\
+                currentQuestionIndex += 1;\
+                var spokenQuestion = Object.keys(questions[gameQuestions[currentQuestionIndex]])[0];\
+                // Generate a random index for the correct answer, from 0 to 3\
+                correctAnswerIndex = Math.floor(Math.random() * (ANSWER_COUNT));\
+                var roundAnswers = populateRoundAnswers(gameQuestions, currentQuestionIndex, correctAnswerIndex),\
+\
+                    questionIndexForSpeech = currentQuestionIndex + 1,\
+                    repromptText = "Question " + questionIndexForSpeech.toString() + ". " + spokenQuestion + " ";\
+                for (var i = 0; i < ANSWER_COUNT; i++) \{\
+                    repromptText += (i+1).toString() + ". " + roundAnswers[i] + ". "\
+                \}\
+                speechOutput += "That answer is " + speechOutputAnalysis + "Your score is " + currentScore.toString() + ". " + repromptText;\
+\
+                var sessionAttributes = \{\
+                    "speechOutput": repromptText,\
+                    "repromptText": repromptText,\
+                    "currentQuestionIndex": currentQuestionIndex,\
+                    "correctAnswerIndex": correctAnswerIndex + 1,\
+                    "questions": gameQuestions,\
+                    "score": currentScore,\
+                    "correctAnswerText":\
+                        questions[gameQuestions[currentQuestionIndex]][Object.keys(questions[gameQuestions[currentQuestionIndex]])[0]][0]\
+                \};\
+                callback(sessionAttributes,\
+                    buildSpeechletResponse(cardTitle, speechOutput, repromptText, false));\
+            \}\
+        \}\
+    \}\
+\}\
+\
+function handleRepeatRequest(intent, session, callback) \{\
+    // Repeat the previous speechOutput and repromptText from the session attributes if available\
+    // else start a new game session\
+    if (!session.attributes || !session.attributes.speechOutput) \{\
+        getWelcomeResponse(callback);\
+    \} else \{\
+        callback(session.attributes,\
+            buildSpeechletResponseWithoutCard(session.attributes.speechOutput, session.attributes.repromptText, false));\
+    \}\
+\}\
+\
+function handleGetHelpRequest(intent, session, callback) \{\
+    // Provide a help prompt for the user, explaining how the game is played. Then, continue the game\
+    // if there is one in progress, or provide the option to start another one.\
+\
+    // Do not edit the help dialogue. This has been created by the Alexa team to demonstrate best practices.\
+\
+    var speechOutput = "I will ask you " + GAME_LENGTH.toString() + " multiple choice questions, try to get as many right as you can! "\
+        + "To give an answer to a question, respond with the number of the answer by saying one, two, three, or four. "\
+        + "To start a new game at any time, say, start game. "\
+        + "To repeat the last question asked, say, repeat.",\
+        repromptText = "To give an answer to a question, respond with the number of the answer. "\
+        + "To start a new game, say, start game",\
+        shouldEndSession = false;\
+    callback(session.attributes,\
+        buildSpeechletResponseWithoutCard(speechOutput, repromptText, shouldEndSession));\
+\}\
+\
+function handleFinishSessionRequest(intent, session, callback) \{\
+    // End the session with a "Good bye!" if the user wants to quit the game\
+    callback(session.attributes,\
+        buildSpeechletResponseWithoutCard("Good bye!", "", true));\
+\}\
+\
+// ------- Helper functions to build responses -------\
+\
+\
+function buildSpeechletResponse(title, output, repromptText, shouldEndSession) \{\
+    return \{\
+        outputSpeech: \{\
+            type: "PlainText",\
+            text: output\
+        \},\
+        card: \{\
+            type: "Simple",\
+            title: title,\
+            content: output\
+        \},\
+        reprompt: \{\
+            outputSpeech: \{\
+                type: "PlainText",\
+                text: repromptText\
+            \}\
+        \},\
+        shouldEndSession: shouldEndSession\
+    \};\
+\}\
+\
+function buildSpeechletResponseWithoutCard(output, repromptText, shouldEndSession) \{\
+    return \{\
+        outputSpeech: \{\
+            type: "PlainText",\
+            text: output\
+        \},\
+        reprompt: \{\
+            outputSpeech: \{\
+                type: "PlainText",\
+                text: repromptText\
+            \}\
+        \},\
+        shouldEndSession: shouldEndSession\
+    \};\
+\}\
+\
+function buildResponse(sessionAttributes, speechletResponse) \{\
+    return \{\
+        version: "1.0",\
+        sessionAttributes: sessionAttributes,\
+        response: speechletResponse\
+    \};\
+\}}
